@@ -117,7 +117,7 @@ aws s3api head-object --bucket your-bucket --key image.webp
 # 设置WebP质量为90%
 aws lambda update-function-configuration \
   --function-name image-to-webp \
-  --environment Variables='{"WEBP_QUALITY":"90","DELETE_ORIGINAL":"false"}'
+  --environment Variables='{WEBP_QUALITY=90,DELETE_ORIGINAL=false}'
 ```
 
 ## 📈 监控和日志

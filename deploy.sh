@@ -318,7 +318,7 @@ create_lambda_function() {
             --timeout 300 \
             --memory-size 512 \
             --layers "$PILLOW_LAYER_ARN" \
-            --environment Variables="{\"WEBP_QUALITY\":\"85\",\"OUTPUT_PREFIX\":\"\",\"DELETE_ORIGINAL\":\"false\"}" \
+            --environment Variables='{WEBP_QUALITY=85,OUTPUT_PREFIX="",DELETE_ORIGINAL=false}' \
             --region "$AWS_REGION"
         
         print_success "Lambda函数更新完成"
@@ -333,7 +333,7 @@ create_lambda_function() {
             --timeout 300 \
             --memory-size 512 \
             --layers "$PILLOW_LAYER_ARN" \
-            --environment Variables="{\"WEBP_QUALITY\":\"85\",\"OUTPUT_PREFIX\":\"\",\"DELETE_ORIGINAL\":\"false\"}" \
+            --environment Variables='{WEBP_QUALITY=85,OUTPUT_PREFIX="",DELETE_ORIGINAL=false}' \
             --region "$AWS_REGION"
         
         print_success "Lambda函数创建完成"
@@ -525,7 +525,7 @@ show_results() {
     echo "🔧 配置环境变量:"
     echo "  aws lambda update-function-configuration \\"
     echo "    --function-name ${FUNCTION_NAME} \\"
-    echo "    --environment Variables='{\"WEBP_QUALITY\":\"90\"}' \\"
+    echo "    --environment Variables='{WEBP_QUALITY=90}' \\"
     echo "    --region ${AWS_REGION}"
     echo ""
     echo "📢 配置失败通知 (可选):"

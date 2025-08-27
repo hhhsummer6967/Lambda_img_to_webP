@@ -56,6 +56,8 @@ s3-image-to-webp/
 | AWS区域 | 部署区域 | us-west-2 |
 | 函数名 | Lambda函数名称 | image-to-webp |
 
+**⚠️ 重要**: Lambda函数必须与S3桶在同一AWS区域，否则无法接收S3事件通知。部署脚本会自动检测S3桶区域并提示调整。
+
 ## ⚙️ 支持的图片格式
 
 - **输入格式**: JPG, JPEG, PNG, BMP, TIFF, TIF

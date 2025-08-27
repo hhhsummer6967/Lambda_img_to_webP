@@ -405,7 +405,26 @@ cat response.json
 
 ### 常见问题
 
-#### 1. Lambda函数未触发
+#### 1. 区域不匹配错误
+
+**症状**: `The notification destination service region is not valid for the bucket location constraint`
+
+**原因**: Lambda函数与S3桶不在同一AWS区域
+
+**解决方案**:
+```bash
+# 1. 检查S3桶区域
+aws s3api get-bucket-location --bucket your-bucket-name
+
+# 2. 在正确的区域重新部署Lambda函数
+./deploy.sh your-bucket-name correct-region-name
+
+# 3. 或者删除现有函数后重新部署
+aws lambda delete-function --function-name image-to-webp --region wrong-region
+./deploy.sh your-bucket-name correct-region-name
+```
+
+#### 2. Lambda函数未触发
 
 **症状**: 上传图片后没有生成WebP文件
 
@@ -426,7 +445,7 @@ aws logs describe-log-groups --log-group-name-prefix "/aws/lambda/image-to-webp"
 - Lambda权限不足
 - 文件格式不支持
 
-#### 2. 图片转换失败
+#### 3. 图片转换失败
 
 **症状**: Lambda执行但转换失败
 
@@ -443,7 +462,7 @@ aws logs filter-log-events \
 - 内存不足
 - 超时时间不够
 
-#### 3. Pillow导入错误
+#### 4. Pillow导入错误
 
 **症状**: `cannot import name '_imaging' from 'PIL'`
 

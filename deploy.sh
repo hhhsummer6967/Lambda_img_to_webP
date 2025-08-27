@@ -42,6 +42,11 @@ show_help() {
     echo "  AWS区域       部署的AWS区域 (默认: us-west-2)"
     echo "  Lambda函数名  Lambda函数名称 (默认: image-to-webp)"
     echo ""
+    echo "重要说明:"
+    echo "  - Lambda函数必须与S3桶在同一AWS区域"
+    echo "  - 如果S3桶已存在，脚本会自动检测桶的区域"
+    echo "  - 如果区域不匹配，脚本会提示是否调整部署区域"
+    echo ""
     echo "示例:"
     echo "  $0 my-image-bucket"
     echo "  $0 my-image-bucket us-east-1"
@@ -138,18 +143,49 @@ get_parameters() {
     echo "  AWS区域: $AWS_REGION"
     echo "  Lambda函数名: $FUNCTION_NAME"
     echo "  AWS账户ID: $ACCOUNT_ID"
+    echo ""
+    print_warning "注意: Lambda函数将部署在与S3桶相同的区域"
 }
 
-# 检查S3桶是否存在
+# 检查S3桶是否存在并获取区域
 check_s3_bucket() {
     print_info "检查S3桶: $BUCKET_NAME"
     
-    if aws s3api head-bucket --bucket "$BUCKET_NAME" --region "$AWS_REGION" 2>/dev/null; then
+    if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
         print_success "S3桶存在: $BUCKET_NAME"
+        
+        # 获取S3桶的区域
+        BUCKET_REGION=$(aws s3api get-bucket-location --bucket "$BUCKET_NAME" --query 'LocationConstraint' --output text 2>/dev/null)
+        
+        # 处理us-east-1的特殊情况（返回None）
+        if [ "$BUCKET_REGION" == "None" ] || [ "$BUCKET_REGION" == "null" ] || [ -z "$BUCKET_REGION" ]; then
+            BUCKET_REGION="us-east-1"
+        fi
+        
+        print_info "S3桶区域: $BUCKET_REGION"
+        
+        # 检查用户指定的区域是否与桶区域一致
+        if [ "$AWS_REGION" != "$BUCKET_REGION" ]; then
+            print_warning "检测到区域不匹配："
+            echo "  指定区域: $AWS_REGION"
+            echo "  S3桶区域: $BUCKET_REGION"
+            echo ""
+            print_warning "Lambda函数必须与S3桶在同一区域才能接收事件通知"
+            echo -n "是否使用S3桶的区域 ($BUCKET_REGION) 进行部署？(y/n): "
+            read use_bucket_region
+            
+            if [ "$use_bucket_region" == "y" ] || [ "$use_bucket_region" == "Y" ]; then
+                AWS_REGION="$BUCKET_REGION"
+                print_success "已更新部署区域为: $AWS_REGION"
+            else
+                print_error "区域不匹配，无法配置S3事件通知"
+                exit 1
+            fi
+        fi
     else
         print_warning "S3桶不存在，正在创建..."
         aws s3 mb "s3://$BUCKET_NAME" --region "$AWS_REGION"
-        print_success "S3桶创建成功: $BUCKET_NAME"
+        print_success "S3桶创建成功: $BUCKET_NAME (区域: $AWS_REGION)"
     fi
 }
 

@@ -135,11 +135,7 @@ aws lambda create-function \
   --timeout 300 \
   --memory-size 512 \
   --layers arn:aws:lambda:REGION:770693421928:layer:Klayers-p39-pillow:1 \
-  --environment Variables='{
-    "WEBP_QUALITY":"85",
-    "OUTPUT_PREFIX":"",
-    "DELETE_ORIGINAL":"false"
-  }'
+  --environment Variables='{"WEBP_QUALITY":"85","OUTPUT_PREFIX":"","DELETE_ORIGINAL":"false"}'
 ```
 
 ### 4. 配置S3事件通知
@@ -166,11 +162,7 @@ aws lambda create-function \
 # 设置WebP质量为90%
 aws lambda update-function-configuration \
   --function-name image-to-webp \
-  --environment Variables='{
-    "WEBP_QUALITY":"90",
-    "OUTPUT_PREFIX":"webp/",
-    "DELETE_ORIGINAL":"false"
-  }'
+  --environment Variables='{"WEBP_QUALITY":"90","OUTPUT_PREFIX":"webp/","DELETE_ORIGINAL":"false"}'
 
 # 增加内存和超时时间
 aws lambda update-function-configuration \
@@ -282,11 +274,7 @@ aws sns subscribe \
 echo "配置Lambda失败通知..."
 aws lambda put-function-event-invoke-config \
   --function-name $FUNCTION_NAME \
-  --destination-config "{
-    \"OnFailure\": {
-      \"Destination\": \"$TOPIC_ARN\"
-    }
-  }" \
+  --destination-config "{\"OnFailure\":{\"Destination\":\"$TOPIC_ARN\"}}" \
   --region $REGION
 
 # 配置CloudWatch告警
@@ -337,11 +325,7 @@ aws sns subscribe \
 ```bash
 aws lambda put-function-event-invoke-config \
   --function-name image-to-webp \
-  --destination-config '{
-    "OnFailure": {
-      "Destination": "'$TOPIC_ARN'"
-    }
-  }'
+  --destination-config '{"OnFailure":{"Destination":"'$TOPIC_ARN'"}}'
 ```
 
 #### 3. 设置CloudWatch告警

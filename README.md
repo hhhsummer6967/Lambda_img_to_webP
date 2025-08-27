@@ -117,10 +117,7 @@ aws s3api head-object --bucket your-bucket --key image.webp
 # 设置WebP质量为90%
 aws lambda update-function-configuration \
   --function-name image-to-webp \
-  --environment Variables='{
-    "WEBP_QUALITY":"90",
-    "DELETE_ORIGINAL":"false"
-  }'
+  --environment Variables='{"WEBP_QUALITY":"90","DELETE_ORIGINAL":"false"}'
 ```
 
 ## 📈 监控和日志
@@ -172,11 +169,7 @@ aws sns subscribe \
 # 为Lambda函数配置失败通知
 aws lambda put-function-event-invoke-config \
   --function-name image-to-webp \
-  --destination-config '{
-    "OnFailure": {
-      "Destination": "'$TOPIC_ARN'"
-    }
-  }'
+  --destination-config '{"OnFailure":{"Destination":"'$TOPIC_ARN'"}}'
 ```
 
 #### 4. 配置CloudWatch告警（可选）

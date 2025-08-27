@@ -318,11 +318,7 @@ create_lambda_function() {
             --timeout 300 \
             --memory-size 512 \
             --layers "$PILLOW_LAYER_ARN" \
-            --environment Variables='{
-                "WEBP_QUALITY":"85",
-                "OUTPUT_PREFIX":"",
-                "DELETE_ORIGINAL":"false"
-            }' \
+            --environment Variables="{\"WEBP_QUALITY\":\"85\",\"OUTPUT_PREFIX\":\"\",\"DELETE_ORIGINAL\":\"false\"}" \
             --region "$AWS_REGION"
         
         print_success "Lambda函数更新完成"
@@ -337,11 +333,7 @@ create_lambda_function() {
             --timeout 300 \
             --memory-size 512 \
             --layers "$PILLOW_LAYER_ARN" \
-            --environment Variables='{
-                "WEBP_QUALITY":"85",
-                "OUTPUT_PREFIX":"",
-                "DELETE_ORIGINAL":"false"
-            }' \
+            --environment Variables="{\"WEBP_QUALITY\":\"85\",\"OUTPUT_PREFIX\":\"\",\"DELETE_ORIGINAL\":\"false\"}" \
             --region "$AWS_REGION"
         
         print_success "Lambda函数创建完成"

@@ -198,11 +198,7 @@ setup_lambda_destination() {
     else
         aws lambda put-function-event-invoke-config \
             --function-name "$FUNCTION_NAME" \
-            --destination-config "{
-                \"OnFailure\": {
-                    \"Destination\": \"$TOPIC_ARN\"
-                }
-            }" \
+            --destination-config "{\"OnFailure\":{\"Destination\":\"$TOPIC_ARN\"}}" \
             --region "$AWS_REGION" > /dev/null
         print_success "Lambda失败目标配置完成"
     fi

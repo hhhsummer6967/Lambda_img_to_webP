@@ -136,6 +136,86 @@ aws logs filter-log-events \
   --filter-pattern "ERROR"
 ```
 
+### 配置失败通知
+
+当Lambda函数执行失败时，可以配置SNS通知来及时获得告警：
+
+#### 1. 创建SNS主题
+```bash
+# 创建SNS主题
+aws sns create-topic --name lambda-image-conversion-failures
+
+# 获取主题ARN
+TOPIC_ARN=$(aws sns list-topics --query 'Topics[?contains(TopicArn, `lambda-image-conversion-failures`)].TopicArn' --output text)
+echo "SNS主题ARN: $TOPIC_ARN"
+```
+
+#### 2. 订阅通知
+```bash
+# 邮件通知
+aws sns subscribe \
+  --topic-arn $TOPIC_ARN \
+  --protocol email \
+  --notification-endpoint your-email@example.com
+
+# 短信通知
+aws sns subscribe \
+  --topic-arn $TOPIC_ARN \
+  --protocol sms \
+  --notification-endpoint +1234567890
+
+# 确认订阅（检查邮件或短信）
+```
+
+#### 3. 配置Lambda失败目标
+```bash
+# 为Lambda函数配置失败通知
+aws lambda put-function-event-invoke-config \
+  --function-name image-to-webp \
+  --destination-config '{
+    "OnFailure": {
+      "Destination": "'$TOPIC_ARN'"
+    }
+  }'
+```
+
+#### 4. 配置CloudWatch告警（可选）
+```bash
+# 创建Lambda错误告警
+aws cloudwatch put-metric-alarm \
+  --alarm-name "lambda-image-conversion-errors" \
+  --alarm-description "Lambda图片转换函数错误告警" \
+  --metric-name Errors \
+  --namespace AWS/Lambda \
+  --statistic Sum \
+  --period 300 \
+  --threshold 1 \
+  --comparison-operator GreaterThanOrEqualToThreshold \
+  --dimensions Name=FunctionName,Value=image-to-webp \
+  --evaluation-periods 1 \
+  --alarm-actions $TOPIC_ARN
+```
+
+#### 5. 测试通知配置
+```bash
+# 手动触发失败测试
+aws lambda invoke \
+  --function-name image-to-webp \
+  --payload '{"Records":[{"s3":{"bucket":{"name":"non-existent-bucket"},"object":{"key":"test.png"}}}]}' \
+  response.json
+
+# 检查是否收到通知
+```
+
+### 通知消息格式
+
+失败通知将包含以下信息：
+- **函数名称**: 失败的Lambda函数
+- **请求ID**: 用于日志追踪
+- **错误类型**: 错误分类
+- **错误消息**: 具体错误描述
+- **时间戳**: 失败发生时间
+
 ### 监控指标
 - Lambda执行次数和持续时间
 - 成功/失败转换率

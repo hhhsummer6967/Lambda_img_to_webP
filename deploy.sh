@@ -535,6 +535,22 @@ show_results() {
     echo "    --function-name ${FUNCTION_NAME} \\"
     echo "    --environment Variables='{\"WEBP_QUALITY\":\"90\"}' \\"
     echo "    --region ${AWS_REGION}"
+    echo ""
+    echo "📢 配置失败通知 (可选):"
+    echo "  1. 创建SNS主题:"
+    echo "     aws sns create-topic --name lambda-image-conversion-failures --region ${AWS_REGION}"
+    echo ""
+    echo "  2. 订阅邮件通知:"
+    echo "     TOPIC_ARN=\$(aws sns list-topics --query 'Topics[?contains(TopicArn, \`lambda-image-conversion-failures\`)].TopicArn' --output text --region ${AWS_REGION})"
+    echo "     aws sns subscribe --topic-arn \$TOPIC_ARN --protocol email --notification-endpoint your-email@example.com --region ${AWS_REGION}"
+    echo ""
+    echo "  3. 配置Lambda失败目标:"
+    echo "     aws lambda put-function-event-invoke-config \\"
+    echo "       --function-name ${FUNCTION_NAME} \\"
+    echo "       --destination-config '{\"OnFailure\":{\"Destination\":\"'\$TOPIC_ARN'\"}}' \\"
+    echo "       --region ${AWS_REGION}"
+    echo ""
+    echo "📖 详细文档: 查看 README.md 中的监控和日志部分"
 }
 
 # 主函数
